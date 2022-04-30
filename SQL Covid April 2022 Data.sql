@@ -91,7 +91,7 @@ Join PortfolioProject..covid_vaccination vac
 Where dea.continent is not null 
 order by 2,3
 
--- using CTE
+-- using CTE for perofrming a calculation Partition for previous query
 
 With PopvsVac (continent, location, date, population, new_vaccinations, rolling_people_vaccinated)
 as
@@ -107,7 +107,7 @@ Where dea.continent is not null
 Select *, (rolling_people_vaccinated/population)*100 as PercentPopulationVaccinated
 From PopvsVac
 
--- creating temp table
+-- Creating Temp Table for calculating Partition for previous query
 
 Drop Table if exists #percent_population_vaccinated
 Create Table #percent_population_vaccinated
@@ -131,7 +131,7 @@ Where dea.continent is not null
 Select *, (rolling_people_vaccinated/population)*100 as percent_population_vaccinated
 From  #percent_population_vaccinated
 
--- creating view to store data for later visulizations
+-- Creating view to store data for later visualizations
 
 Create View percent_population_vaccinated as
 Select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, SUM(CONVERT(bigint, vac.new_vaccinations)) OVER (Partition by dea.location Order by dea.location, dea.date) as rolling_people_vaccinated
